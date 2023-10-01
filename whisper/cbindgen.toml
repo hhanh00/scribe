@@ -1,0 +1,5 @@
+language = "C"
+no_includes = true
+after_includes = """
+#include "types.h"
+"""

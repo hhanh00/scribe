@@ -1,0 +1,23 @@
+[package]
+name = "scribe_whisper"
+version = "0.0.1"
+edition = "2021"
+
+[lib]
+name = "scribe_whisper"
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+anyhow = "1.0.75"
+flexi_logger = "0.25.6"
+log = "0.4"
+allo-isolate = "0.1.18"
+# byteorder = "1.4"
+parking_lot = "0.12.1"
+
+hound = "3.5.0"
+
+whisper-rs = { path = "../whisper-rs" }
+
+[build-dependencies]
+cbindgen = "0.24"
