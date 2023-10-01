@@ -6,6 +6,7 @@ import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
+import 'package:flutter/foundation.dart';
 import 'whisper_generated.dart' hide bool;
 
 final whisper_lib = init();
@@ -23,8 +24,10 @@ class Whisper {
     throw UnsupportedError('This platform is not supported.');
   }
 
-  static String transcribe(String audioFilePath) {
-    return utf8.decode(unwrapResultBytes(whisper_lib.transcribe_file(toNative(audioFilePath))));
+  static Future<String> transcribe(String audioFilePath) async {
+    return compute((_) {
+      return utf8.decode(unwrapResultBytes(whisper_lib.transcribe_file(toNative(audioFilePath))));
+    }, null);
   }
 }
 
