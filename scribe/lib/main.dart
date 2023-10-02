@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -89,7 +92,7 @@ class RecordPage extends StatefulWidget {
 
 class _RecordPageState extends State<RecordPage> {
   bool _isRecording = false;
-  final _record = Record();
+  final _record = AudioRecorder();
   String _filename = '';
   String _audioFile = '';
   Transcript? _transcript;
@@ -115,18 +118,19 @@ class _RecordPageState extends State<RecordPage> {
   _start() async {
     // Check and request permission
     if (await _record.hasPermission()) {
-      final tempDir = await getExternalStorageDirectory();
-      String tempPath = tempDir!.path;
+      final tempPath = await getAudioDir();
       final now = DateTime.now();
       final nowFormatted = DateFormat('yyyyMMdd_HHmmss').format(now);
       _filename = 'scribe-$nowFormatted.wav';
       _audioFile = '$tempPath/$_filename';
       _transcript = Transcript(_filename, now, '');
       await _record.start(
+        const RecordConfig(
+          encoder: AudioEncoder.wav,
+          bitRate: 128000,
+          sampleRate: 16000,
+        ),
         path: _audioFile,
-        encoder: AudioEncoder.wav,
-        bitRate: 128000,
-        samplingRate: 16000,
       );
     }
     _isRecording = true;
@@ -165,4 +169,12 @@ class _HistoryPageState extends State<HistoryPage> {
       },),
     );
   }
+}
+
+Future<String?> getAudioDir() async {
+  if (Platform.isAndroid)
+    return (await getExternalStorageDirectory())?.path;
+  else if (Platform.isMacOS)
+    return (await getApplicationDocumentsDirectory())?.path;
+  return null;
 }
