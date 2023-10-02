@@ -2,12 +2,11 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:ffi';
 import 'dart:io';
-import 'dart:isolate';
 import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 import 'package:flutter/foundation.dart';
-import 'whisper_generated.dart' hide bool;
+import 'whisper_generated.dart';
 
 final whisper_lib = init();
 

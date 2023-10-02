@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -96,6 +95,7 @@ class _RecordPageState extends State<RecordPage> {
   String _filename = '';
   String _audioFile = '';
   Transcript? _transcript;
+  String _content = '';
 
   @override
   Widget build(BuildContext context) {
@@ -107,8 +107,10 @@ class _RecordPageState extends State<RecordPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            const Spacer(),
             !_isRecording ? ElevatedButton.icon(onPressed: _start, icon: const Icon(Icons.mic), label: const Text('Record')) :
             ElevatedButton.icon(onPressed: _stop, icon: const Icon(Icons.stop), label: const Text('Stop')),
+            Expanded(child: Padding(padding: const EdgeInsets.all(16), child: Text(_content))),
           ],
         ),
       ),
@@ -140,9 +142,9 @@ class _RecordPageState extends State<RecordPage> {
   _stop() async {
     await _record.stop();
     _isRecording = false;
+    _content = await Whisper.transcribe(_audioFile);
     setState(() {});
-    final content = await Whisper.transcribe(_audioFile);
-    await store.add(_transcript!.name, _transcript!.timestamp, content);
+    await store.add(_transcript!.name, _transcript!.timestamp, _content);
   }
 }
 
@@ -175,6 +177,6 @@ Future<String?> getAudioDir() async {
   if (Platform.isAndroid)
     return (await getExternalStorageDirectory())?.path;
   else if (Platform.isMacOS)
-    return (await getApplicationDocumentsDirectory())?.path;
+    return (await getApplicationDocumentsDirectory()).path;
   return null;
 }
