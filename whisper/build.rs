@@ -12,5 +12,5 @@ fn create_c_bindings() {
         .with_config(config)
         .generate()
         .expect("Unable to generate bindings")
-        .write_to_file("warp2.h");
+        .write_to_file("bindings.h");
 }

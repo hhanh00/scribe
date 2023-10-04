@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:go_router/go_router.dart';
@@ -103,18 +104,31 @@ class _RecordPageState extends State<RecordPage> {
       appBar: AppBar(
         title: const Text('Scribe'),
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Spacer(),
-            !_isRecording ? ElevatedButton.icon(onPressed: _start, icon: const Icon(Icons.mic), label: const Text('Record')) :
-            ElevatedButton.icon(onPressed: _stop, icon: const Icon(Icons.stop), label: const Text('Stop')),
-            Expanded(child: Padding(padding: const EdgeInsets.all(16), child: Text(_content))),
+            ButtonBar(children: [
+              !_isRecording ? ElevatedButton.icon(onPressed: _start, icon: const Icon(Icons.mic), label: const Text('Record')) :
+              ElevatedButton.icon(onPressed: _stop, icon: const Icon(Icons.stop), label: const Text('Stop')),
+              ElevatedButton.icon(onPressed: _load, icon: const Icon(Icons.open_with), label: const Text('Open')),
+            ]),
+            Padding(padding: const EdgeInsets.all(16), child: Text(_content))
           ],
         ),
       ),
     );
+  }
+
+  _load() async {
+    final result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      _audioFile = result.files.single.path!;
+      _content = await Whisper.transcribe(_audioFile);
+      setState(() {});
+      await store.add(_transcript!.name, _transcript!.timestamp, _content);
+    }   
   }
 
   _start() async {

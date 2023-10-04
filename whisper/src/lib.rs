@@ -19,15 +19,12 @@ pub fn transcribe(audio_filename: &str) -> Result<String> {
     // Edit params as needed.
     // Set the number of threads to use to 1.
     params.set_n_threads(1);
-    // Enable translation.
-    params.set_translate(true);
-    // Set the language to translate to to English.
-    params.set_language(Some("en"));
     // Disable anything that prints to stdout.
     params.set_print_special(false);
     params.set_print_progress(false);
     params.set_print_realtime(false);
     params.set_print_timestamps(false);
+    params.set_diarize(true);
 
     // Open the audio file.
     let mut reader = hound::WavReader::open(audio_filename).expect("failed to open file");
@@ -82,12 +79,13 @@ pub fn transcribe(audio_filename: &str) -> Result<String> {
         let end_timestamp = state
             .full_get_segment_t1(i)
             .expect("failed to get end timestamp");
-
-        // Print the segment to stdout.
-        println!("[{} - {}]: {}", start_timestamp, end_timestamp, segment);
+        let speaker_next_turn = state.full_get_segment_speaker_turn_next(i).expect("failed to get speaker next turn");
 
         // Format the segment information as a string.
         let line = format!("[{} - {}]: {}\n", start_timestamp, end_timestamp, segment);
+        if speaker_next_turn {
+            transcript.push_str("[SPKR]\n");
+        }
         transcript.push_str(&line);
     }
     Ok(transcript)

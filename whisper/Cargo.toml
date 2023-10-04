@@ -3,6 +3,10 @@ name = "scribe_whisper"
 version = "0.0.1"
 edition = "2021"
 
+[[bin]]
+name = "test-dtrz"
+path = "src/dtrz.rs"
+
 [lib]
 name = "scribe_whisper"
 crate-type = ["rlib", "cdylib"]
@@ -17,7 +21,7 @@ parking_lot = "0.12.1"
 
 hound = "3.5.0"
 
-whisper-rs = { path = "../whisper-rs" }
+whisper-rs = { path = "../whisper-rs", features = ["coreml"] }
 
 [build-dependencies]
 cbindgen = "0.24"
